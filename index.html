@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">   
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>  
+    <h1>Welcome to My Website</h1>
+    <button>Get Message</button>
+
+    <script>
+        const heading = document.querySelector('h1');
+        const button = document.querySelector('button');
+
+        button.addEventListener('click', () => {
+            fetch('http://localhost:3000/message')
+                .then(response => {
+                    if(!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    heading.textContent = data.message;
+                })
+                .catch(error => {
+                    console.error('Error fetching message:', error);
+                });
+
+        });
+    </script>
+
+
+<form  id="cotact-form">
+    
+</form>
+</body>
+</html>
