@@ -11,15 +11,15 @@ const exportToExcel = async (req, res) => {
     });
 
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Laporan Stok');
+    const worksheet = workbook.addWorksheet('Stock Report');
 
     worksheet.columns = [
       { header: 'No', key: 'no', width: 5 },
-      { header: 'Kode Produk', key: 'productCode', width: 20 },
-      { header: 'Nama Produk', key: 'name', width: 30 },
-      { header: 'Kategori', key: 'category', width: 20 },
-      { header: 'Stok', key: 'stock', width: 10 },
-      { header: 'Terakhir Diperbarui', key: 'lastUpdated', width: 25 },
+      { header: 'Product Code', key: 'productCode', width: 20 },
+      { header: 'Product Name', key: 'name', width: 30 },
+      { header: 'Category', key: 'category', width: 20 },
+      { header: 'Stock', key: 'stock', width: 10 },
+      { header: 'Last Updated', key: 'lastUpdated', width: 25 },
     ];
 
     products.forEach((p, index) => {
@@ -54,22 +54,22 @@ const exportToPDF = async (req, res) => {
     });
 
     const doc = new PDFDocument({ margin: 30, size: 'A4' });
-    
+
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=' + 'Laporan_Stok.pdf');
-    
+    res.setHeader('Content-Disposition', 'attachment; filename=' + 'Stock_report.pdf');
+
     doc.pipe(res);
 
     // Title
-    doc.fontSize(20).text('Laporan Stok Inventaris', { align: 'center' });
+    doc.fontSize(20).text('Stock Report', { align: 'center' });
     doc.moveDown(0.5);
-    
+
     // Print Date
-    const printDate = new Date().toLocaleString('id-ID', { 
+    const printDate = new Date().toLocaleString('en-US', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
       hour: '2-digit', minute: '2-digit'
     });
-    doc.fontSize(10).fillColor('gray').text(`Tanggal Cetak: ${printDate}`, { align: 'center' });
+    doc.fontSize(10).fillColor('gray').text(`Print Date: ${printDate}`, { align: 'center' });
     doc.moveDown(2);
 
     // Table Data
@@ -87,10 +87,10 @@ const exportToPDF = async (req, res) => {
     const tableArray = {
       headers: [
         { label: "No", width: 30 },
-        { label: "Kode Produk", width: 100 },
-        { label: "Nama Produk", width: 220 },
-        { label: "Kategori", width: 120 },
-        { label: "Stok", width: 50 }
+        { label: "Product Code", width: 100 },
+        { label: "Product Name", width: 220 },
+        { label: "Category", width: 120 },
+        { label: "Stock", width: 50 }
       ],
       rows: tableRows
     };
