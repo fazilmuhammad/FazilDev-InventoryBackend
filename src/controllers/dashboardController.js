@@ -17,11 +17,8 @@ const getStats = async (req, res) => {
       }
     });
 
-    let totalInventoryValue = 0;
     const productsWithStock = products.map(p => {
       const totalStock = p.stocks.reduce((acc, stock) => acc + stock.quantity, 0);
-      const value = totalStock * (p.price ? parseFloat(p.price) : 0);
-      totalInventoryValue += value;
       
       return {
         ...p,
@@ -41,7 +38,6 @@ const getStats = async (req, res) => {
     res.json({
       totalProducts,
       totalCategories,
-      totalInventoryValue,
       lowStockAlerts,
       recentProducts
     });

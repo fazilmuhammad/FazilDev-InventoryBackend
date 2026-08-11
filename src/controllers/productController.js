@@ -94,7 +94,7 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const { name, categoryId, stockQuantity, sku, price, vendor, location } = req.body;
+    const { name, categoryId, stockQuantity } = req.body;
     
     // Handle images
     if (!req.files || !req.files.main_image) {
@@ -107,19 +107,12 @@ const createProduct = async (req, res) => {
       : null;
 
     const productCode = await generateProductCode();
-    // Generate a random 12 digit barcode
-    const barcode = Math.floor(100000000000 + Math.random() * 900000000000).toString();
 
     const product = await prisma.product.create({
       data: {
         productCode,
         name,
         categoryId: parseInt(categoryId),
-        sku: sku || null,
-        barcode,
-        price: price ? parseFloat(price) : null,
-        vendor: vendor || null,
-        location: location || null,
         mainImage,
         additionalImages,
         stocks: {
@@ -140,15 +133,11 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { name, categoryId, stockQuantity, sku, price, vendor, location } = req.body;
+    const { name, categoryId, stockQuantity } = req.body;
 
     const updateData = {
       name,
       categoryId: parseInt(categoryId),
-      sku: sku || null,
-      price: price ? parseFloat(price) : null,
-      vendor: vendor || null,
-      location: location || null,
     };
 
     if (req.files && req.files.main_image) {
