@@ -37,7 +37,7 @@ const exportToExcel = async (req, res) => {
     });
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename=' + 'Laporan_Stok.xlsx');
+    res.setHeader('Content-Disposition', 'attachment; filename=' + 'Stock_Report.xlsx');
 
     await workbook.xlsx.write(res);
     res.end();
@@ -56,7 +56,7 @@ const exportToPDF = async (req, res) => {
     const doc = new PDFDocument({ margin: 30, size: 'A4' });
 
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=' + 'Stock_report.pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=' + 'Stock_Report.pdf');
 
     doc.pipe(res);
 
