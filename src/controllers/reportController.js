@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const ExcelJS = require('exceljs');
-const PDFDocument = require('pdfkit');
+const PDFDocument = require('pdfkit-table');
 
 const exportToExcel = async (req, res) => {
   try {
@@ -53,25 +53,56 @@ const exportToPDF = async (req, res) => {
       orderBy: { productCode: 'asc' }
     });
 
-    const doc = new PDFDocument();
+    const doc = new PDFDocument({ margin: 30, size: 'A4' });
     
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename=' + 'Laporan_Stok.pdf');
     
     doc.pipe(res);
 
+    // Title
     doc.fontSize(20).text('Laporan Stok Inventaris', { align: 'center' });
-    doc.moveDown();
+    doc.moveDown(0.5);
+    
+    // Print Date
+    const printDate = new Date().toLocaleString('id-ID', { 
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+    doc.fontSize(10).fillColor('gray').text(`Tanggal Cetak: ${printDate}`, { align: 'center' });
+    doc.moveDown(2);
 
-    products.forEach((p, index) => {
+    // Table Data
+    const tableRows = products.map((p, index) => {
       const stockQty = p.stocks.reduce((acc, stock) => acc + stock.quantity, 0);
-      doc.fontSize(12).text(`${index + 1}. [${p.productCode}] ${p.name}`);
-      doc.fontSize(10).text(`Kategori: ${p.category.name} | Stok: ${stockQty}`);
-      doc.moveDown(0.5);
+      return [
+        (index + 1).toString(),
+        p.productCode,
+        p.name,
+        p.category?.name || '-',
+        stockQty.toString()
+      ];
+    });
+
+    const tableArray = {
+      headers: [
+        { label: "No", width: 30 },
+        { label: "Kode Produk", width: 100 },
+        { label: "Nama Produk", width: 220 },
+        { label: "Kategori", width: 120 },
+        { label: "Stok", width: 50 }
+      ],
+      rows: tableRows
+    };
+
+    await doc.table(tableArray, {
+      prepareHeader: () => doc.font("Helvetica-Bold").fontSize(10).fillColor('black'),
+      prepareRow: () => doc.font("Helvetica").fontSize(10).fillColor('black')
     });
 
     doc.end();
   } catch (error) {
+    console.error('Failed to generate PDF:', error);
     res.status(500).json({ message: 'Failed to generate PDF report', error: error.message });
   }
 };
