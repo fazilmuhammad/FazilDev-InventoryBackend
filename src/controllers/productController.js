@@ -133,7 +133,7 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { name, categoryId, stockQuantity } = req.body;
+    const { name, categoryId, stockQuantity, existing_images } = req.body;
 
     const updateData = {
       name,
@@ -144,8 +144,35 @@ const updateProduct = async (req, res) => {
       updateData.mainImage = `/uploads/images/${req.files.main_image[0].filename}`;
     }
 
+    // Handle gallery images: merge existing with new
+    let allAdditionalImages = [];
+    
+    // Add existing images that user kept
+    if (existing_images) {
+      try {
+        const existingArray = JSON.parse(existing_images);
+        // Clean up any full URLs to just relative paths
+        const cleanedImages = existingArray.map(img => {
+          if (img.includes('http://localhost:3000')) {
+            return img.replace('http://localhost:3000', '');
+          }
+          return img;
+        });
+        allAdditionalImages = [...cleanedImages];
+      } catch (e) {
+        console.error('Error parsing existing images:', e);
+      }
+    }
+    
+    // Add new images
     if (req.files && req.files.additional_images) {
-      updateData.additionalImages = JSON.stringify(req.files.additional_images.map(file => `/uploads/images/${file.filename}`));
+      const newImages = req.files.additional_images.map(file => `/uploads/images/${file.filename}`);
+      allAdditionalImages = [...allAdditionalImages, ...newImages];
+    }
+    
+    // Update additionalImages only if there are any images to save
+    if (allAdditionalImages.length > 0) {
+      updateData.additionalImages = JSON.stringify(allAdditionalImages);
     }
 
     const product = await prisma.product.update({
